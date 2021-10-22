@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.css
+    "
+    />
+    <title>Document</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: monospace, sans-serif;
+        height: 100vh;
+        /* background-image: linear-gradient(to bottom, #545443 0%, #844732 50%, #923555 50%, #942392); */
+      }
+      :root {
+        --primary-clr: #000;
+        --secondary-clr: #fff;
+      }
+      html {
+        transition: all 0.4s ease-in;
+      }
+      .dark {
+        --primary-clr: #fff;
+        --secondary-clr: #000;
+      }
+      .dark {
+        background-color: #111;
+        color: var(--primary-clr);
+      }
+
+      .toggle {
+        background-color: var(--primary-clr);
+        color: var(--secondary-clr);
+        border: 0;
+        border-radius: 4px;
+        padding: 0.8em 2.5em;
+        position: absolute;
+        top: 100px;
+        cursor: pointer;
+        transition: background-color 0.6s ease-in;
+      }
+      .toggle:focus {
+        outline: none;
+      }
+      .clock-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .clock {
+        position: relative;
+        width: 300px;
+        height: 300px;
+      }
+
+      .needle {
+        background-color: var(--primary-clr);
+        position: absolute;
+        width: 4px;
+        height: 60px;
+        top: 50%;
+        left: 50%;
+        transform-origin: bottom center;
+        transition: all 0.3s ease-in-out;
+      }
+
+      .hour {
+        transform: translate(-50%, -100%) rotate(0deg);
+      }
+      .min {
+        transform: translate(-50%, -100%) rotate(0deg);
+        height: 100px;
+      }
+      .sec {
+        transform: translate(-50%, -100%) rotate(0deg);
+        height: 100px;
+        background-color: red;
+      }
+
+      .center-point::after {
+        content: '';
+        /* position: absolute; */
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: var(--secondary-clr);
+      }
+      .time {
+        font-size: 3.3rem;
+      }
+      .date {
+        color: #aaa;
+        font-size: 1.1rem;
+        letter-spacing: 0.5px;
+      }
+      .circle {
+        background-color: purple;
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0.9em;
+        font-size: 0.9rem;
+        /* line-height: 30px; */
+        /* transition: all 0.4s ease-in; */
+      }
+    </style>
+  </head>
+  <body>
+    <button class="toggle">Dark</button>
+
+    <div class="clock-container">
+      <div class="clock">
+        <div class="needle hour"></div>
+        <div class="needle min"></div>
+        <div class="needle sec"></div>
+        <div class="center-point"></div>
+      </div>
+
+      <div class="time"></div>
+      <div class="date"></div>
+    </div>
+    <script>
+      const hourEl = document.querySelector('.hour');
+      const minuteEl = document.querySelector('.min');
+      const secondEl = document.querySelector('.sec');
+      const timeEl = document.querySelector('.time');
+      const dateEl = document.querySelector('.date');
+      const toggleEl = document.querySelector('.toggle');
+      // const minSpan = document.querySelector('.min-span');
+
+      const html = document.querySelector('html');
+
+      const days = [
+        'Sunday',
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+      ];
+
+      const months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'April',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
+
+      toggleEl.addEventListener('click', () => {
+        html.classList.toggle('dark');
+        if (toggleEl.innerText === 'Dark') {
+          toggleEl.innerText = 'Light';
+        } else {
+          toggleEl.innerText = 'Dark';
+        }
+      });
+
+      function setTime() {
+        const time = new Date();
+        const month = time.getMonth();
+        const day = time.getDay();
+        const date = time.getDate();
+        const hours = time.getHours();
+        const minutes = time.getMinutes();
+        const seconds = time.getSeconds();
+        const hoursForClock = hours % 12;
+
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+
+        hourEl.style.transform = `translate(-50%, -100%) rotate(${scale(
+          hoursForClock,
+          0,
+          11,
+          0,
+          360
+        )}deg)`;
+        minuteEl.style.transform = `translate(-50%, -100%) rotate(${scale(
+          minutes,
+          0,
+          59,
+          0,
+          360
+        )}deg)`;
+        secondEl.style.transform = `translate(-50%, -100%) rotate(${scale(
+          seconds,
+          0,
+          59,
+          0,
+          360
+        )}deg)`;
+
+        timeEl.innerText = `${hoursForClock}:${
+          minutes < 10 ? `0${minutes}` : minutes
+        }:${seconds} ${ampm} `;
+
+        dateEl.innerHTML = ` 
+          ${days[day]}, ${months[month]} <span class="circle">${date}</span>
+        `;
+      }
+
+      function scale(number, inMin, inMax, outMin, outMax) {
+        return (
+          ((number - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
+        );
+      }
+
+      setInterval(setTime, 1000);
+
+
+
+      function flattenArray(arr, depth) {
+        console.log(arr.flat(depth));
+      }
+     flattenArray([1, 2, 3, [4, 5, [6, 7]]] ,1)
+    </script>
+
+    <!-- <img src="https://source.unsplash.com/random/300x300?v=1" alt=""> -->
+  </body>
+
+  <script></script>
+</html>
